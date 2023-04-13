@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>L7.js Proving Grounds</title>
+        <script src="L7.js" ></script>
+    </head>
+    <body>
+    <!--HL7 Input Box-->
+    <h3>⬇️ Input</h3>
+    <textarea id="hl7" rows="10" cols="300"></textarea>
+    <br>
+    <!--JSON intermediary box-->
+    <h3>⬇️ Serialized JSON</h3>
+    <textarea id="json" rows="10" cols="300"></textarea>
+    <br>
+    <!--HL7 Output Box-->
+    <h3>⬇️ Unserialized</h3>
+    <textarea id="hl7out" rows="10" cols="300"></textarea>
+    
+    </body>
+    <script>
+        const hl7Worker = new l7();
+
+        var hl7Input = document.getElementById("hl7");
+        var jsonInput = document.getElementById("json");
+        var hl7Output = document.getElementById("hl7out");
+
+        // If anything changes in the HL7 box, convert it to JSON and put it in the JSON box
+        hl7Input.addEventListener("input", function() {
+            hl7Worker.input = hl7Input.value;
+            hl7Worker.serialize();
+            jsonInput.value = JSON.stringify(hl7Worker.serialized);
+
+            hl7Worker.unserialize();
+            hl7Output.value = hl7Worker.output;
+        });
+
+        // If anything changes in the JSON box, convert it to HL7 and put it in the HL7 box
+        jsonInput.addEventListener("input", function() {
+            hl7Worker.serialized = JSON.parse(jsonInput.value);
+            hl7Worker.unserialize();
+            hl7Output.value = hl7Worker.output;
+        });
+
+        // Just refresh the JSON box and Output HL7
+        function refreshSerialized() {
+            jsonInput.value = JSON.stringify(hl7Worker.serialized);
+        }
+    </script>
+    
+</html>
