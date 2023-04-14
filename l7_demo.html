@@ -12,13 +12,19 @@
     <h3>⬇️ Serialized JSON</h3>
     <textarea id="json" rows="10" cols="300"></textarea>
     <br>
+    <!--JSON intermediary box-->
+    <h3>⬇️ Transform</h3>
+    <textarea id="js" rows="10" cols="300"></textarea>
+    <!--A transform button-->
+    <button onclick="process()">Transform</button>
+    <br>
     <!--HL7 Output Box-->
     <h3>⬇️ Unserialized</h3>
     <textarea id="hl7out" rows="10" cols="300"></textarea>
     
     </body>
     <script>
-        const hl7Worker = new l7();
+        const msg = new l7();
 
         var hl7Input = document.getElementById("hl7");
         var jsonInput = document.getElementById("json");
@@ -26,24 +32,27 @@
 
         // If anything changes in the HL7 box, convert it to JSON and put it in the JSON box
         hl7Input.addEventListener("input", function() {
-            hl7Worker.input = hl7Input.value;
-            hl7Worker.serialize();
-            jsonInput.value = JSON.stringify(hl7Worker.serialized);
+            msg.input = hl7Input.value;
+            msg.serialize();
+            jsonInput.value = JSON.stringify(msg.serialized);
 
-            hl7Worker.unserialize();
-            hl7Output.value = hl7Worker.output;
+            hl7Output.value = msg.bake();
         });
 
         // If anything changes in the JSON box, convert it to HL7 and put it in the HL7 box
         jsonInput.addEventListener("input", function() {
-            hl7Worker.serialized = JSON.parse(jsonInput.value);
-            hl7Worker.unserialize();
-            hl7Output.value = hl7Worker.output;
+            msg.serialized = JSON.parse(jsonInput.value);
+            hl7Output.value = msg.bake();            
         });
 
         // Just refresh the JSON box and Output HL7
-        function refreshSerialized() {
-            jsonInput.value = JSON.stringify(hl7Worker.serialized);
+        function process() {
+            // Run the transform code
+            eval(document.getElementById("js").value);
+            // Refresh the JSON box 
+            jsonInput.value = JSON.stringify(msg.serialized);
+            // Refresh the HL7 box
+            hl7Output.value = msg.bake();
         }
     </script>
     

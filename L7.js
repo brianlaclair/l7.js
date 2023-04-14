@@ -5,7 +5,6 @@ class l7 {
     constructor(rawInput = "") {
         this.input       = rawInput.trim();
         this.serialized  = {};
-        this.output      = "";
         this.fSeperator  = "|";
         this.cSeperator  = "^";
         this.rSeperator  = "~";
@@ -39,7 +38,7 @@ class l7 {
         this.serialized.MSH = {
             'origOrder': 0,
             'newOrder': 0,
-            'fields': [[this.fSeperator], [this.cSeperator + this.rSeperator + this.escChar + this.scSeperator]]
+            'fields': [['MSH'], [this.fSeperator], [this.cSeperator + this.rSeperator + this.escChar + this.scSeperator]]
         };
 
         let perField = perSegment[0].split(this.fSeperator);
@@ -88,7 +87,7 @@ class l7 {
 
         // Check if the segment is a repeating segment
         if (fieldNumber !== undefined) {
-            fieldNumber--;
+            // fieldNumber--;
         } else {
             situation++;
         }
@@ -134,7 +133,7 @@ class l7 {
 
         // Check if the segment is a repeating segment
         if (fieldNumber !== undefined) {
-            fieldNumber--;
+            // fieldNumber--;
         } else {
             situation++;
         }
@@ -171,15 +170,15 @@ class l7 {
 
     }
 
-    unserialize() {
+    bake() {
         // Unparse the serialized object into the output HL7
-        this.output = "";
+        let output = "";
 
-        this.fSeperator    = this.serialized.MSH.fields[0][0];
-        this.cSeperator    = this.serialized.MSH.fields[1][0].charAt(0);
-        this.rSeperator    = this.serialized.MSH.fields[1][0].charAt(1);
-        this.escChar       = this.serialized.MSH.fields[1][0].charAt(2);
-        this.scSeperator   = this.serialized.MSH.fields[1][0].charAt(3);
+        this.fSeperator    = this.serialized.MSH.fields[1][0];
+        this.cSeperator    = this.serialized.MSH.fields[2][0].charAt(0);
+        this.rSeperator    = this.serialized.MSH.fields[2][0].charAt(1);
+        this.escChar       = this.serialized.MSH.fields[2][0].charAt(2);
+        this.scSeperator   = this.serialized.MSH.fields[2][0].charAt(3);
 
         // Let's make a list...
         let segmentArray   = [];
@@ -210,9 +209,15 @@ class l7 {
         // Loop through the list and build the output
         for (let i = 0; i < segmentArray.length; i++) {
             for (let j = 0; j < segmentArray[i].fields.length; j++) {
-                this.output += segmentArray[i].fields[j].join(this.cSeperator) + this.fSeperator;
+                // If the segment is MSH, we need to skip the second field
+                if (segmentArray[i].fields[0][0] === "MSH" && j === 1) {
+                    continue;
+                }
+                output += segmentArray[i].fields[j].join(this.cSeperator) + this.fSeperator;
             }
-            this.output += "\r\n";
+            output += "\r\n";
         }
+
+        return output;
     }
 }
